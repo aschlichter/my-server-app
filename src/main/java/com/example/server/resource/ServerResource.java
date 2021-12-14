@@ -1,6 +1,5 @@
 package com.example.server.resource;
 
-import com.example.server.enumeration.Status;
 import com.example.server.model.Response;
 import com.example.server.model.Server;
 import com.example.server.service.implementation.ServerServiceImpl;
@@ -12,8 +11,9 @@ import javax.validation.Valid;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
+import static com.example.server.enumeration.Status.SERVER_UP;
 import static java.time.LocalDateTime.now;
 import static java.util.Map.of;
 import static org.springframework.http.HttpStatus.CREATED;
@@ -30,7 +30,8 @@ public class ServerResource {
     private final ServerServiceImpl serverService;
 
     @GetMapping("/list")
-    public ResponseEntity<Response> getServers() {
+    public ResponseEntity<Response> getServers() throws InterruptedException {
+        TimeUnit.SECONDS.sleep(3);
         return ResponseEntity.ok(
                 Response.builder()
                         .timeStamp(now())
@@ -48,8 +49,8 @@ public class ServerResource {
         return ResponseEntity.ok(
                 Response.builder()
                         .timeStamp(now())
-                        .data(of("servers", server))
-                        .message(server.getStatus() == Status.SERVER_UP ? "Ping success" : "Ping failed")
+                        .data(of("server", server))
+                        .message(server.getStatus() == SERVER_UP ? "Ping success" : "Ping failed")
                         .status(OK)
                         .statusCode(OK.value())
                         .build()
@@ -61,7 +62,7 @@ public class ServerResource {
         return ResponseEntity.ok(
                 Response.builder()
                         .timeStamp(now())
-                        .data(of("servers", serverService.create(server)))
+                        .data(of("server", serverService.create(server)))
                         .message("Server created")
                         .status(CREATED)
                         .statusCode(CREATED.value())
@@ -74,7 +75,7 @@ public class ServerResource {
         return ResponseEntity.ok(
                 Response.builder()
                         .timeStamp(now())
-                        .data(of("servers", serverService.get(id)))
+                        .data(of("server", serverService.get(id)))
                         .message("Server retrieved")
                         .status(OK)
                         .statusCode(OK.value())
